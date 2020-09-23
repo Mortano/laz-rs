@@ -136,7 +136,7 @@ pub mod v1 {
         }
     }
 
-    impl<R: Read> FieldDecompressor<R> for LasExtraByteDecompressor {
+    impl<R: Read + Send> FieldDecompressor<R> for LasExtraByteDecompressor {
         fn size_of_field(&self) -> usize {
             self.count
         }
@@ -223,7 +223,7 @@ pub mod v3 {
         }
     }
 
-    impl<R: Read + Seek> LayeredFieldDecompressor<R> for LasExtraByteDecompressor {
+    impl<R: Read + Seek + Send> LayeredFieldDecompressor<R> for LasExtraByteDecompressor {
         fn size_of_field(&self) -> usize {
             self.num_extra_bytes
         }

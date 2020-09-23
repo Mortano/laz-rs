@@ -898,7 +898,7 @@ pub mod v3 {
         }
     }
 
-    impl<R: Read + Seek> LayeredFieldDecompressor<R> for LasPoint6Decompressor {
+    impl<R: Read + Seek + Send> LayeredFieldDecompressor<R> for LasPoint6Decompressor {
         fn size_of_field(&self) -> usize {
             Point6::SIZE
         }

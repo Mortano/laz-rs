@@ -235,7 +235,7 @@ pub mod v1 {
         }
     }
 
-    impl<R: Read> FieldDecompressor<R> for LasRGBDecompressor {
+    impl<R: Read + Send> FieldDecompressor<R> for LasRGBDecompressor {
         fn size_of_field(&self) -> usize {
             3 * size_of::<u16>()
         }
@@ -619,7 +619,7 @@ pub mod v2 {
         Ok(this_val)
     }
 
-    impl<R: Read> FieldDecompressor<R> for LasRGBDecompressor {
+    impl<R: Read + Send> FieldDecompressor<R> for LasRGBDecompressor {
         fn size_of_field(&self) -> usize {
             6
         }
@@ -713,7 +713,7 @@ pub mod v3 {
         }
     }
 
-    impl<R: Read + Seek> LayeredFieldDecompressor<R> for LasRGBDecompressor {
+    impl<R: Read + Seek + Send> LayeredFieldDecompressor<R> for LasRGBDecompressor {
         fn size_of_field(&self) -> usize {
             std::mem::size_of::<u16>() * 3
         }

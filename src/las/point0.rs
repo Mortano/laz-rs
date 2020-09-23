@@ -522,7 +522,7 @@ pub mod v1 {
         }
     }
 
-    impl<R: Read> FieldDecompressor<R> for LasPoint0Decompressor {
+    impl<R: Read + Send> FieldDecompressor<R> for LasPoint0Decompressor {
         fn size_of_field(&self) -> usize {
             20
         }
@@ -1009,7 +1009,7 @@ pub mod v2 {
         }
     }
 
-    impl<R: Read> FieldDecompressor<R> for LasPoint0Decompressor {
+    impl<R: Read + Send> FieldDecompressor<R> for LasPoint0Decompressor {
         fn size_of_field(&self) -> usize {
             20
         }

@@ -22,7 +22,7 @@ use crate::las::laszip::{LasZipError, LazItem, LazItemType};
 /// or a combination of single fields (example: the RGB is considered a field and it
 /// is a combination of multiple single fields: Red, Green, Blue)
 ///
-pub trait FieldDecompressor<R: Read> {
+pub trait FieldDecompressor<R: Read + Send>: Send {
     /// size in bytes of the decompressed field data
     fn size_of_field(&self) -> usize;
 
@@ -43,7 +43,7 @@ pub trait FieldDecompressor<R: Read> {
 }
 
 /// Trait to be implemented by FieldCompressors that works with layers.
-pub trait LayeredFieldDecompressor<R: Read> {
+pub trait LayeredFieldDecompressor<R: Read + Send>: Send {
     /// size in bytes of the decompressed field data
     fn size_of_field(&self) -> usize;
 
@@ -73,7 +73,7 @@ pub trait LayeredFieldDecompressor<R: Read> {
 }
 
 /// Trait describing the interface needed to _decompress_ a point record
-pub trait RecordDecompressor<R> {
+pub trait RecordDecompressor<R>: Send {
     /// Sets the field decompressors that matches the `laz_items`
     fn set_fields_from(&mut self, laz_items: &Vec<LazItem>) -> crate::Result<()>;
     /// Returns the size of a decompressed point record (total size of all fields)
@@ -105,7 +105,7 @@ pub trait RecordDecompressor<R> {
 /// 2) `n` compressed Points
 ///
 /// [`RecordDecompressor`]: trait.RecordDecompressor.html
-pub struct SequentialPointRecordDecompressor<'a, R: Read> {
+pub struct SequentialPointRecordDecompressor<'a, R: Read + Send> {
     field_decompressors: Vec<Box<dyn FieldDecompressor<R> + 'a>>,
     decoder: decoders::ArithmeticDecoder<R>,
     is_first_decompression: bool,
@@ -113,7 +113,7 @@ pub struct SequentialPointRecordDecompressor<'a, R: Read> {
     fields_sizes: Vec<usize>,
 }
 
-impl<'a, R: Read> SequentialPointRecordDecompressor<'a, R> {
+impl<'a, R: Read + Send> SequentialPointRecordDecompressor<'a, R> {
     /// Creates a new instance, the `input` is where the point data
     /// will be decompressed from
     pub fn new(input: R) -> Self {
@@ -143,7 +143,7 @@ impl<'a, R: Read> SequentialPointRecordDecompressor<'a, R> {
     }
 }
 
-impl<'a, R: Read> RecordDecompressor<R> for SequentialPointRecordDecompressor<'a, R> {
+impl<'a, R: Read + Send> RecordDecompressor<R> for SequentialPointRecordDecompressor<'a, R> {
     fn set_fields_from(&mut self, laz_items: &Vec<LazItem>) -> crate::Result<()> {
         for record_item in laz_items {
             match record_item.version {
@@ -262,7 +262,7 @@ impl<'a, R: Read> RecordDecompressor<R> for SequentialPointRecordDecompressor<'a
 /// [`RecordDecompressor`]: trait.RecordDecompressor.html
 /// [`LayeredFieldDecompressor`]: trait.LayeredFieldDecompressor.html
 /// [`LasPoint6Decompressor`]: ../las/point6/v3/struct.LasPoint6Decompressor.html
-pub struct LayeredPointRecordDecompressor<'a, R: Read + Seek> {
+pub struct LayeredPointRecordDecompressor<'a, R: Read + Seek + Send> {
     field_decompressors: Vec<Box<dyn LayeredFieldDecompressor<R> + 'a>>,
     input: R,
     is_first_decompression: bool,
@@ -271,7 +271,7 @@ pub struct LayeredPointRecordDecompressor<'a, R: Read + Seek> {
     context: usize,
 }
 
-impl<'a, R: Read + Seek> LayeredPointRecordDecompressor<'a, R> {
+impl<'a, R: Read + Seek + Send> LayeredPointRecordDecompressor<'a, R> {
     /// Creates a new instance.
     /// The `input` is where layers will be read to later be decompressed
     pub fn new(input: R) -> Self {
@@ -294,7 +294,7 @@ impl<'a, R: Read + Seek> LayeredPointRecordDecompressor<'a, R> {
     }
 }
 
-impl<'a, R: Read + Seek> RecordDecompressor<R> for LayeredPointRecordDecompressor<'a, R> {
+impl<'a, R: Read + Seek + Send> RecordDecompressor<R> for LayeredPointRecordDecompressor<'a, R> {
     fn set_fields_from(&mut self, laz_items: &Vec<LazItem>) -> crate::Result<()> {
         for record_item in laz_items {
             match record_item.version {

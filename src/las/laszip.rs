@@ -472,7 +472,7 @@ impl LazVlrBuilder {
     }
 }
 
-fn record_decompressor_from_laz_items<'a, R: Read + Seek + 'a>(
+fn record_decompressor_from_laz_items<'a, R: Read + Seek + Send + 'a>(
     items: &Vec<LazItem>,
     input: R,
 ) -> crate::Result<Box<dyn RecordDecompressor<R> + 'a>> {
@@ -593,7 +593,7 @@ fn read_chunk_table_at_offset<R: Read + Seek>(
 }
 
 /// Struct that handles the decompression of the points written in a LAZ file
-pub struct LasZipDecompressor<'a, R: Read + Seek + 'a> {
+pub struct LasZipDecompressor<'a, R: Read + Seek + Send + 'a> {
     vlr: LazVlr,
     record_decompressor: Box<dyn RecordDecompressor<R> + 'a>,
     chunk_points_read: u32,
@@ -602,7 +602,7 @@ pub struct LasZipDecompressor<'a, R: Read + Seek + 'a> {
     chunk_table: Option<Vec<u64>>,
 }
 
-impl<'a, R: Read + Seek + 'a> LasZipDecompressor<'a, R> {
+impl<'a, R: Read + Seek + Send + 'a> LasZipDecompressor<'a, R> {
     /// Creates a new instance from a data source of compressed points
     /// and the `record data` of the laszip vlr
     pub fn new_with_record_data(source: R, laszip_vlr_record_data: &[u8]) -> crate::Result<Self> {

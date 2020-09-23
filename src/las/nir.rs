@@ -85,7 +85,7 @@ pub mod v3 {
         }
     }
 
-    impl<R: Read + Seek> LayeredFieldDecompressor<R> for LasNIRDecompressor {
+    impl<R: Read + Seek + Send> LayeredFieldDecompressor<R> for LasNIRDecompressor {
         fn size_of_field(&self) -> usize {
             std::mem::size_of::<u16>()
         }

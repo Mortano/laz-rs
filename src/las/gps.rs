@@ -375,7 +375,7 @@ pub mod v1 {
         }
     }
 
-    impl<R: Read> FieldDecompressor<R> for LasGpsTimeDecompressor {
+    impl<R: Read + Send> FieldDecompressor<R> for LasGpsTimeDecompressor {
         fn size_of_field(&self) -> usize {
             std::mem::size_of::<f64>()
         }
@@ -854,7 +854,7 @@ pub mod v2 {
         }
     }
 
-    impl<R: Read> FieldDecompressor<R> for GpsTimeDecompressor {
+    impl<R: Read + Send> FieldDecompressor<R> for GpsTimeDecompressor {
         fn size_of_field(&self) -> usize {
             std::mem::size_of::<i64>()
         }
